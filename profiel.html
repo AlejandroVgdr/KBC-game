@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>LevelUp — profiel</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%230097db'/%3E%3Cpath d='M50 22 80 74H20z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar" id="topbar"></header>
+
+  <main class="page">
+    <section class="card profile-head" id="profile-head"></section>
+
+    <div class="grid-2">
+      <section class="card">
+        <h2>🪪 Persoonlijke info</h2>
+        <p class="card-sub">Je ouder kan deze gegevens aanpassen.</p>
+        <dl class="info-list" id="profile-info"></dl>
+      </section>
+      <section class="card">
+        <h2>🕸️ Mijn geldprofiel</h2>
+        <p class="card-sub">Je niveau (1–5) per geldonderwerp. Groeit met elke missie en simulatie.</p>
+        <div id="profile-radar"></div>
+      </section>
+    </div>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>📈 Niveaus per onderwerp</h2>
+        <span class="muted small">✅ ⚠️ 💡 signalen uit je uitgaven · 🎮 geleerd in het spel</span>
+      </div>
+      <p class="card-sub">Je profiel combineert wat we zien in je uitgaven met wat je leert in het spel.</p>
+      <div class="topic-grid" id="profile-topics"></div>
+    </section>
+
+    <div class="grid-2">
+      <section class="card">
+        <h2>🏅 Badges</h2>
+        <p class="card-sub" id="badge-count"></p>
+        <div class="badges" id="profile-badges"></div>
+      </section>
+      <section class="card">
+        <h2>🎯 Spaardoelen</h2>
+        <div id="profile-goals"></div>
+        <h2 class="subsection">🧭 Mijn plannen</h2>
+        <p class="card-sub">Scenario’s die je verkende in “Wat als ik…?”.</p>
+        <ul class="plans" id="profile-plans"></ul>
+      </section>
+    </div>
+
+    <div class="grid-2">
+      <section class="card">
+        <h2>🤝 Afspraken met je ouder</h2>
+        <p class="card-sub">Ingesteld door je ouder op het ouderdashboard.</p>
+        <ul class="rules" id="profile-rules"></ul>
+      </section>
+      <section class="card">
+        <div class="card-head">
+          <h2>🧾 Recente transacties</h2>
+          <button type="button" class="link-btn" id="tx-toggle"></button>
+        </div>
+        <ul class="tx-list" id="profile-tx"></ul>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer" id="footer"></footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/profiel.js"></script>
+</body>
+</html>
