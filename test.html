@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>KBC Jongeren Financieel Leerplatform</title>
+  <style>
+    :root {
+      --kbc-blue: #005696;
+      --kbc-light-blue: #00a2e8;
+      --kbc-dark: #002b49;
+      --kbc-sand: #f4f6f9;
+      --kbc-accent: #00bcd4;
+      --kbc-orange: #ff7f00;
+      --text-main: #1f2d3d;
+      --card-bg: #ffffff;
+      --border-color: #dbe3eb;
+      --success: #28a745;
+      --danger: #dc3545;
+      --warning: #ffc107;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--kbc-sand); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+
+    header {
+      background-color: var(--kbc-blue);
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .brand { font-size: 1.3rem; font-weight: 700; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; }
+    .nav-tabs { display: flex; gap: 8px; }
+    .nav-btn {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.4);
+      color: white;
+      padding: 0.5rem 1.1rem;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .nav-btn.active, .nav-btn:hover {
+      background-color: white;
+      color: var(--kbc-blue);
+      border-color: white;
+    }
+
+    main { flex: 1; max-width: 1150px; width: 100%; margin: 1.5rem auto; padding: 0 1rem; }
+    .view-panel { display: none; }
+    .view-panel.active { display: block; }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+    }
+    h2 { color: var(--kbc-dark); margin-bottom: 0.8rem; font-size: 1.35rem; }
+    h3 { color: var(--kbc-blue); margin-bottom: 0.6rem; font-size: 1.05rem; }
+
+    /* Profiel & Skills Grid */
+    .profile-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem; }
+    .skill-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+    .skill-card {
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem;
+      background: #fafbfc;
+    }
+    .skill-title { display: flex; justify-content: space-between; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem; }
+    .badge {
+      font-size: 0.75rem;
+      background: #e1f0fa;
+      color: var(--kbc-blue);
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 700;
+    }
+    .progress-bar-bg { background: #e0e6ed; border-radius: 6px; height: 9px; overflow: hidden; }
+    .progress-bar-fill { background: var(--kbc-light-blue); height: 100%; width: 0%; transition: width 0.3s ease; }
+
+    /* HUD Bar Game */
+    .sim-hud {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      background: linear-gradient(135deg, #002b49, #005696);
+      color: white;
+      padding: 1.2rem;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+    }
+    .hud-item { display: flex; flex-direction: column; }
+    .hud-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8; }
+    .hud-val { font-size: 1.35rem; font-weight: 700; margin-top: 3px; }
+
+    /* Scenario Selectie Grid */
+    .scenario-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.8rem; margin-bottom: 1.2rem; }
+    .scenario-card {
+      background: white;
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+    .scenario-card:hover { border-color: var(--kbc-light-blue); transform: translateY(-2px); }
+    .scenario-card.active { border-color: var(--kbc-blue); background: #f0f7fc; }
+    .scenario-card h4 { font-size: 0.95rem; color: var(--kbc-blue); margin-bottom: 4px; }
+    .scenario-card p { font-size: 0.8rem; color: #555; }
+
+    /* Game Layout Grid */
+    .game-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
+    @media (max-width: 900px) { .game-layout { grid-template-columns: 1fr; } }
+
+    /* Beslissingen */
+    .decision-box {
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      background: #fafbfc;
+    }
+    .decision-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.6rem; display: flex; justify-content: space-between; }
+    .decision-options { display: flex; flex-direction: column; gap: 0.5rem; }
+    .opt-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+      padding: 0.6rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+    }
+    .opt-label:hover { background: #f8fafc; border-color: var(--kbc-light-blue); }
+
+    /* Log */
+    .event-log {
+      max-height: 250px;
+      overflow-y: auto;
+      background: #f8f9fa;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.75rem;
+      font-size: 0.82rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .log-entry { padding: 6px 10px; border-radius: 6px; background: white; border-left: 3px solid var(--kbc-blue); }
+    .log-entry.positive { border-left-color: var(--success); }
+    .log-entry.negative { border-left-color: var(--danger); }
+    .log-entry.warning { border-left-color: var(--warning); }
+
+    /* Knoppen & UI Elements */
+    .btn { padding: 0.65rem 1.25rem; border-radius: 6px; font-weight: 600; cursor: pointer; border: none; }
+    .primary-btn { background: var(--kbc-blue); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 600; cursor: pointer; }
+    .primary-btn:hover { background: var(--kbc-dark); }
+    .btn-next-month { background: var(--kbc-orange); color: white; font-size: 1rem; padding: 0.85rem 1.5rem; width: 100%; }
+    .btn-next-month:hover { background: #e66f00; }
+    .tx-item { display: flex; justify-content: space-between; padding: 0.65rem 0; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+    .tx-item:last-child { border-bottom: none; }
+    .form-group { margin-bottom: 1rem; }
+    label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.3rem; color: #555; }
+    input, select { width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid var(--border-color); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">KBC Grow & Learn</div>
+    <nav class="nav-tabs">
+      <button class="nav-btn" onclick="switchView('profile')">Profiel & Skills</button>
+      <button class="nav-btn active" onclick="switchView('game')">Game & Simulatie</button>
+      <button class="nav-btn" onclick="switchView('parent')">Ouder Dashboard</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- TAB 1: PROFIEL MET SKILL NIVEAUS -->
+    <section id="view-profile" class="view-panel">
+      <div class="card">
+        <div class="profile-header">
+          <div>
+            <h2 id="prof-name">Lukas Dupont (16 jaar)</h2>
+            <p style="color: #666; font-size: 0.9rem;">Jongerenrekening gekoppeld • Actief leertraject</p>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 0.85rem; color: #666;">Zichtrekening Saldo</div>
+            <div style="font-size: 1.4rem; font-weight: 700; color: var(--kbc-blue);" id="prof-balance">€ 345,50</div>
+          </div>
+        </div>
+
+        <h3>Vaardigheidsniveaus Financiële Zaken</h3>
+        <p style="font-size: 0.85rem; color: #666; margin-bottom: 1rem;">Niveaus stijgen automatisch op basis van je keuzes in de levenssimulator.</p>
+        <div class="skill-grid" id="skills-container"></div>
+      </div>
+
+      <div class="card">
+        <h3>Echte Uitgaven & Koppelbare Leermomenten</h3>
+        <p style="font-size: 0.85rem; color: #666; margin-bottom: 0.75rem;">Deze actuele rekeningdata is gekoppeld en vormt de basis van je simulaties:</p>
+        <div class="tx-item">
+          <span>Spotify Premium (Abonnement)</span>
+          <strong>- € 5,99</strong>
+        </div>
+        <div class="tx-item">
+          <span>Basic-Fit Maandelijks (Abonnement)</span>
+          <strong>- € 24,99</strong>
+        </div>
+        <div class="tx-item">
+          <span>Storting Bakkerij Job (Loon)</span>
+          <strong style="color: var(--success);">+ € 160,00</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: GAME & SIMULATIE (UITGEBREID) -->
+    <section id="view-game" class="view-panel active">
+      <!-- HUD / Statistieken Bar -->
+      <div class="sim-hud">
+        <div class="hud-item">
+          <span class="hud-label">Periode</span>
+          <span class="hud-val" id="hud-month">Maand 1</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">Zichtrekening</span>
+          <span class="hud-val" id="hud-balance">€ 345,50</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">KBC Spaarbuffer</span>
+          <span class="hud-val" id="hud-savings">€ 150,00</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">KBC Beleggingen</span>
+          <span class="hud-val" id="hud-invest">€ 0,00</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">Welzijn & Vreugde</span>
+          <span class="hud-val" id="hud-stress">92% 😄</span>
+        </div>
+      </div>
+
+      <!-- Stap 1: Scenario Selectie -->
+      <div class="card">
+        <h3>1. Selecteer een Toekomstscenario ("Wat als ik ga...?")</h3>
+        <div class="scenario-grid">
+          <div class="scenario-card active" onclick="selectScenario('job')">
+            <h4>👔 Studentenjob Horeca</h4>
+            <p>12u/week werken. RSZ-contingent (600 uur) opvolgen en loon sparen.</p>
+          </div>
+          <div class="scenario-card" onclick="selectScenario('kot')">
+            <h4>🏠 Op Kot / Huren</h4>
+            <p>Huurwaarborg, nutsvoorzieningen en wekelijkse boodschappen opvangen.</p>
+          </div>
+          <div class="scenario-card" onclick="selectScenario('study')">
+            <h4>🎓 Verder Studeren</h4>
+            <p>Inschrijvingsgeld en studieboeken betalen vs. beperkte tijd voor loon.</p>
+          </div>
+          <div class="scenario-card" onclick="selectScenario('holiday')">
+            <h4>✈️ Sparen voor Zomerreis</h4>
+            <p>Wekelijks automatisch afromen om met vrienden op roadtrip te gaan.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stap 2: Interactieve Besluitvorming -->
+      <div class="game-layout">
+        <div>
+          <div class="card">
+            <h3>2. Maandelijkse Besluitvorming</h3>
+            <p style="font-size: 0.85rem; color: #666; margin-bottom: 1rem;">
+              Echte vaste kosten (€ 30,98) zijn actief. Maak strategische keuzes voor de komende maand:
+            </p>
+
+            <div class="decision-box">
+              <div class="decision-title">
+                <span>🎵 Vaste Abonnementen</span>
+                <span style="font-size: 0.8rem; color: #666;">Cashflow vs. Welzijn</span>
+              </div>
+              <div class="decision-options">
+                <label class="opt-label">
+                  <input type="radio" name="sub_choice" value="keep" checked>
+                  Behoud Spotify & Basic-Fit (- € 30,98) • <em>Geen impact op welzijn</em>
+                </label>
+                <label class="opt-label">
+                  <input type="radio" name="sub_choice" value="pause_gym">
+                  Pauzeer Basic-Fit (- € 5,99) • <em>Bespaar direct € 24,99</em>
+                </label>
+                <label class="opt-label">
+                  <input type="radio" name="sub_choice" value="cancel_all">
+                  Schrap alle abonnementen (€ 0,00) • <em>-10% Welzijn</em>
+                </label>
+              </div>
+            </div>
+
+            <div class="decision-box">
+              <div class="decision-title">
+                <span>📈 Sparen vs. Beleggen</span>
+                <span style="font-size: 0.8rem; color: #666;">KBC Producten</span>
+              </div>
+              <div class="decision-options">
+                <label class="opt-label">
+                  <input type="radio" name="save_choice" value="save_only" checked>
+                  Veilig naar KBC Spaarrekening (+ € 50) • <em>Zekerheid & buffer</em>
+                </label>
+                <label class="opt-label">
+                  <input type="radio" name="save_choice" value="invest_part">
+                  KBC Beleggingsplan (€ 25 sparen + € 25 beleggen) • <em>Rendement met risico</em>
+                </label>
+                <label class="opt-label">
+                  <input type="radio" name="save_choice" value="spend_all">
+                  Niets opzij zetten deze maand • <em>Geen bufferopbouw</em>
+                </label>
+              </div>
+            </div>
+
+            <div class="decision-box">
+              <div class="decision-title">
+                <span>⏱️ Werken & Ureninzet</span>
+                <span style="font-size: 0.8rem; color: #666;">Inkomsten vs. Rust</span>
+              </div>
+              <div class="decision-options">
+                <label class="opt-label">
+                  <input type="radio" name="work_choice" value="normal" checked>
+                  Standaard uren (12u/week) • Basisinkomen
+                </label>
+                <label class="opt-label">
+                  <input type="radio" name="work_choice" value="overtime">
+                  Overuren draaien • + € 250 extra, maar -10% Welzijn
+                </label>
+                <label class="opt-label">
+                  <input type="radio" name="work_choice" value="less">
+                  Rustperiode nemen • - € 250 inkomsten, +5% Welzijn
+                </label>
+              </div>
+            </div>
+
+            <button class="btn btn-next-month" onclick="playTurn()">▶️ Volgende Maand Simuleren</button>
+          </div>
+        </div>
+
+        <!-- Rechterkolom: Financiële Preview & Feedback Log -->
+        <div>
+          <div class="card">
+            <h3>Financiële Cashflow (Deze Maand)</h3>
+            <div class="tx-item"><span>Verwacht Inkomen:</span><strong id="cf-income" style="color:var(--success);">+ € 520,00</strong></div>
+            <div class="tx-item"><span>Vaste Lasten & Kot:</span><strong id="cf-fixed" style="color:var(--danger);">- € 30,98</strong></div>
+            <div class="tx-item"><span>Levensonderhoud:</span><strong id="cf-living" style="color:var(--danger);">- € 120,00</strong></div>
+            <div class="tx-item" style="border-top: 2px solid #ccc; font-weight:700;">
+              <span>Netto Maandresultaat:</span>
+              <span id="cf-net" style="color:var(--success);">+ € 369,02</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Simulator Log & Gebeurtenissen</h3>
+            <div class="event-log" id="event-log">
+              <div class="log-entry">Simulatie gestart. Kies je maandelijkse strategie en klik op 'Volgende Maand Simuleren'.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: OUDER DASHBOARD -->
+    <section id="view-parent" class="view-panel">
+      <div class="card">
+        <h2>Ouderlijk Toezicht & Begeleiding</h2>
+        <p style="color: #666; margin-bottom: 1.5rem;">Beheer de leersnelheid, limieten en stimuleer financiële groei.</p>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+          <div>
+            <h3>Limieten & Vrijgaven</h3>
+            <div class="form-group">
+              <label>Maandelijkse spaarlimiet instellen (€)</label>
+              <input type="number" id="parent-save-limit" value="100">
+            </div>
+            <div class="form-group">
+              <label>Module Beleggen Toestaan</label>
+              <select id="parent-invest-perm">
+                <option value="locked">Vergrendeld (eerst Lvl 3 Sparen nodig)</option>
+                <option value="sim_only" selected>Enkel in fictieve simulaties</option>
+                <option value="enabled">Actief onder ouderlijk toezicht</option>
+              </select>
+            </div>
+            <button class="primary-btn" onclick="saveParentSettings()">Instellingen Opslaan</button>
+          </div>
+
+          <div>
+            <h3>Directe XP Aanpassing (Ouderbeloning)</h3>
+            <p style="font-size:0.85rem; color:#666; margin-bottom: 0.75rem;">Ken XP toe na een financieel gesprek thuis of een behaald spaardoel:</p>
+            <div class="form-group">
+              <label>Onderdeel</label>
+              <select id="manual-skill-target">
+                <option value="Sparen">Sparen</option>
+                <option value="Abonnementen">Abonnementen</option>
+                <option value="Loon & Werk">Loon & Werk</option>
+                <option value="Huren & Wonen">Huren & Wonen</option>
+                <option value="Beleggen">Beleggen</option>
+                <option value="Betalen">Betalen</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Aantal XP:</label>
+              <input type="number" id="manual-skill-pts" value="25" min="5" max="100">
+            </div>
+            <button class="primary-btn" style="background:#555;" onclick="manualAddXP()">+ XP Beloning Toekennen</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const state = {
+      month: 1,
+      balance: 345.50,
+      savings: 150.00,
+      investments: 0.00,
+      happiness: 92,
+      activeScenario: 'job',
+      skills: [
+        { name: "Betalen", level: 3, xp: 80 },
+        { name: "Sparen", level: 2, xp: 45 },
+        { name: "Abonnementen", level: 2, xp: 60 },
+        { name: "Loon & Werk", level: 1, xp: 20 },
+        { name: "Huren & Wonen", level: 1, xp: 10 },
+        { name: "Beleggen", level: 0, xp: 0 }
+      ]
+    };
+
+    const scenarios = {
+      job: { name: "Studentenjob Horeca", baseIncome: 520, fixedCost: 30.98, livingCost: 120, skill: "Loon & Werk" },
+      kot: { name: "Op Kot / Huren", baseIncome: 320, fixedCost: 480.98, livingCost: 200, skill: "Huren & Wonen" },
+      study: { name: "Verder Studeren", baseIncome: 180, fixedCost: 95.98, livingCost: 90, skill: "Sparen" },
+      holiday: { name: "Sparen voor Zomerreis", baseIncome: 480, fixedCost: 30.98, livingCost: 100, skill: "Sparen" }
+    };
+
+    function switchView(tab) {
+      document.querySelectorAll('.view-panel').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById('view-' + tab).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    function renderSkills() {
+      const container = document.getElementById('skills-container');
+      container.innerHTML = '';
+      state.skills.forEach(s => {
+        container.innerHTML += `
+          <div class="skill-card">
+            <div class="skill-title">
+              <span>${s.name}</span>
+              <span class="badge">Niveau ${s.level}</span>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" style="width: ${s.xp}%;"></div>
+            </div>
+            <div style="font-size: 0.75rem; color: #777; margin-top: 5px; text-align: right;">${s.xp} / 100 XP</div>
+          </div>
+        `;
+      });
+    }
+
+    function addXP(skillName, pts) {
+      const skill = state.skills.find(s => s.name === skillName);
+      if (!skill) return;
+      skill.xp += pts;
+      if (skill.xp >= 100) {
+        skill.level += Math.floor(skill.xp / 100);
+        skill.xp = skill.xp % 100;
+        logEvent(`🎉 LEVEL UP! ${skill.name} is nu Niveau ${skill.level}!`, 'positive');
+      }
+      renderSkills();
+    }
+
+    function selectScenario(key) {
+      state.activeScenario = key;
+      document.querySelectorAll('.scenario-card').forEach(c => c.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+      updateCashflowPreview();
+      logEvent(`Scenario gewijzigd naar: "${scenarios[key].name}".`, 'warning');
+    }
+
+    function updateCashflowPreview() {
+      const sc = scenarios[state.activeScenario];
+      document.getElementById('cf-income').innerText = `+ € ${sc.baseIncome.toFixed(2)}`;
+      document.getElementById('cf-fixed').innerText = `- € ${sc.fixedCost.toFixed(2)}`;
+      document.getElementById('cf-living').innerText = `- € ${sc.livingCost.toFixed(2)}`;
+      const net = sc.baseIncome - sc.fixedCost - sc.livingCost;
+      const netEl = document.getElementById('cf-net');
+      netEl.innerText = `${net >= 0 ? '+' : ''} € ${net.toFixed(2)}`;
+      netEl.style.color = net >= 0 ? "var(--success)" : "var(--danger)";
+    }
+
+    function logEvent(msg, type = '') {
+      const log = document.getElementById('event-log');
+      const item = document.createElement('div');
+      item.className = `log-entry ${type}`;
+      item.innerHTML = `<strong>[Maand ${state.month}]</strong> ${msg}`;
+      log.prepend(item);
+    }
+
+    function playTurn() {
+      const sc = scenarios[state.activeScenario];
+      let income = sc.baseIncome;
+      let fixed = sc.fixedCost;
+      let living = sc.livingCost;
+
+      // 1. Abonnementen
+      const subChoice = document.querySelector('input[name="sub_choice"]:checked').value;
+      if (subChoice === 'pause_gym') {
+        fixed -= 24.99;
+        addXP('Abonnementen', 15);
+      } else if (subChoice === 'cancel_all') {
+        fixed -= 30.98;
+        state.happiness -= 10;
+        addXP('Abonnementen', 25);
+      }
+
+      // 2. Werken
+      const workChoice = document.querySelector('input[name="work_choice"]:checked').value;
+      if (workChoice === 'overtime') {
+        income += 250;
+        state.happiness -= 10;
+        addXP('Loon & Werk', 25);
+      } else if (workChoice === 'less') {
+        income -= 250;
+        state.happiness += 5;
+        addXP('Loon & Werk', 10);
+      } else {
+        addXP('Loon & Werk', 15);
+      }
+
+      // 3. Sparen & Beleggen
+      const saveChoice = document.querySelector('input[name="save_choice"]:checked').value;
+      let saveDelta = 0;
+      let investDelta = 0;
+      if (saveChoice === 'save_only') {
+        saveDelta = 50;
+        addXP('Sparen', 20);
+      } else if (saveChoice === 'invest_part') {
+        saveDelta = 25;
+        investDelta = 25;
+        const returnRate = (Math.random() * 0.08 - 0.02);
+        state.investments = (state.investments + 25) * (1 + returnRate);
+        addXP('Beleggen', 30);
+      } else {
+        state.happiness += 5;
+      }
+
+      const net = income - fixed - living - saveDelta - investDelta;
+      state.balance += net;
+      state.savings += saveDelta;
+
+      // Willekeurige gebeurtenis
+      triggerRandomEvent();
+
+      state.month++;
+      state.happiness = Math.max(20, Math.min(100, state.happiness));
+
+      updateHUD();
+      addXP('Betalen', 10);
+      addXP(sc.skill, 15);
+    }
+
+    function triggerRandomEvent() {
+      const r = Math.floor(Math.random() * 4);
+      if (r === 0) {
+        state.balance -= 45;
+        logEvent('⚠️ Lekke fietsband hersteld (- € 45,00). Goed dat je een buffer had!', 'warning');
+      } else if (r === 1) {
+        state.balance += 35;
+        logEvent('🎁 Verjaardagsstorting van familie (+ € 35,00).', 'positive');
+      } else if (r === 2) {
+        state.balance -= 25;
+        logEvent('🍕 Onverwacht etentje met vrienden (- € 25,00).', '');
+      } else {
+        logEvent('Rustige financiële maand. Vaste lasten netjes verwerkt.', 'positive');
+      }
+
+      if (state.balance < 0) {
+        logEvent('🚨 OPGELET: Zichtrekening staat onder nul! Je betaalt debetrente.', 'negative');
+        state.happiness -= 15;
+      }
+    }
+
+    function updateHUD() {
+      document.getElementById('hud-month').innerText = `Maand ${state.month}`;
+      document.getElementById('hud-balance').innerText = `€ ${state.balance.toFixed(2)}`;
+      document.getElementById('hud-savings').innerText = `€ ${state.savings.toFixed(2)}`;
+      document.getElementById('hud-invest').innerText = `€ ${state.investments.toFixed(2)}`;
+      
+      let icon = '😄';
+      if (state.happiness < 70) icon = '😐';
+      if (state.happiness < 40) icon = '😰';
+      document.getElementById('hud-stress').innerText = `${state.happiness}% ${icon}`;
+      document.getElementById('prof-balance').innerText = `€ ${state.balance.toFixed(2)}`;
+    }
+
+    function manualAddXP() {
+      const targetName = document.getElementById('manual-skill-target').value;
+      const pts = parseInt(document.getElementById('manual-skill-pts').value, 10);
+      addXP(targetName, pts);
+      alert(`Ouderbeloning toegekend: +${pts} XP voor ${targetName}!`);
+    }
+
+    function saveParentSettings() {
+      alert("Instellingen opgeslagen! De leersnelheid en limieten zijn bijgewerkt.");
+    }
+
+    // Start-up
+    renderSkills();
+    updateCashflowPreview();
+    updateHUD();
+  </script>
+</body>
+</html>
